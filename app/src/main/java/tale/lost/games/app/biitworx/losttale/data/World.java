@@ -13,11 +13,11 @@ public class World {
     public static int worldY=0;
 
     public void generate() {
-        layers.add(new StoneLayer(dimens));
-        layers.add(new StoneLayer(dimens));
-        layers.add(new StoneLayer(dimens));
-        layers.add(new StoneLayer(dimens));
-        layers.add(new GrassLayer(dimens));
+        layers.add(new Layer(dimens,0));
+        layers.add(new Layer(dimens,1));
+        layers.add(new Layer(dimens,2));
+        layers.add(new Layer(dimens,3));
+        layers.add(new Layer(dimens,4));
 
     }
 

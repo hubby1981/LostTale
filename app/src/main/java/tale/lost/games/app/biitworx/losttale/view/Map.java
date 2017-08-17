@@ -22,6 +22,7 @@ import tale.lost.games.app.biitworx.losttale.MainActivity;
 import tale.lost.games.app.biitworx.losttale.R;
 import tale.lost.games.app.biitworx.losttale.data.GameObject;
 import tale.lost.games.app.biitworx.losttale.data.Grass;
+import tale.lost.games.app.biitworx.losttale.data.GrassStair;
 import tale.lost.games.app.biitworx.losttale.data.PositionRect;
 import tale.lost.games.app.biitworx.losttale.data.Sand;
 import tale.lost.games.app.biitworx.losttale.data.Stone;
@@ -48,6 +49,7 @@ public class Map extends View {
     private Bitmap willow;
     private Bitmap leavesgreen;
     private Bitmap water;
+    private Bitmap grassstairs;
 
     private int size = 80;
     private ArrayList<ArrayList<PositionRect>> layers = null;
@@ -63,6 +65,7 @@ public class Map extends View {
         willow = BitmapFactory.decodeResource(MainActivity.res, R.drawable.willow);
         leavesgreen = BitmapFactory.decodeResource(MainActivity.res, R.drawable.leavesgreen);
         water = BitmapFactory.decodeResource(MainActivity.res, R.drawable.water);
+        grassstairs = BitmapFactory.decodeResource(MainActivity.res, R.drawable.grassstairs);
 
         text = new Paint();
         text.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -161,6 +164,9 @@ public class Map extends View {
                 } else if (go.getClass() == Water.class) {
                     canvas.drawBitmap(water, null, rc.getPos(), null);
                 }
+                else if (go.getClass() == GrassStair.class) {
+                    canvas.drawBitmap(grassstairs, null, rc.getPos(), null);
+                }
                 if (go.getObjects().size() > 0) {
 
                     for (GameObject go2 : go.getObjects()) {
@@ -175,7 +181,6 @@ public class Map extends View {
                             canvas.drawBitmap(willow, null, from, null);
                             from = new RectF(from.left - from.width() / 2, (from.top - from.height() / 2) - from.width() / 2, from.right + from.width() / 2, (from.bottom - from.height() / 2) + from.width() / 2);
                             canvas.drawBitmap(leavesgreen, null, from, null);
-
                         }
                     }
                 }
