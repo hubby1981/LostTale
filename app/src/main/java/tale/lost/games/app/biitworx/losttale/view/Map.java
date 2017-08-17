@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import tale.lost.games.app.biitworx.losttale.MainActivity;
 import tale.lost.games.app.biitworx.losttale.R;
+import tale.lost.games.app.biitworx.losttale.data.Brick;
 import tale.lost.games.app.biitworx.losttale.data.GameObject;
 import tale.lost.games.app.biitworx.losttale.data.Grass;
 import tale.lost.games.app.biitworx.losttale.data.GrassStair;
@@ -50,6 +51,7 @@ public class Map extends View {
     private Bitmap leavesgreen;
     private Bitmap water;
     private Bitmap grassstairs;
+    private Bitmap brick;
 
     private int size = 80;
     private ArrayList<ArrayList<PositionRect>> layers = null;
@@ -66,6 +68,7 @@ public class Map extends View {
         leavesgreen = BitmapFactory.decodeResource(MainActivity.res, R.drawable.leavesgreen);
         water = BitmapFactory.decodeResource(MainActivity.res, R.drawable.water);
         grassstairs = BitmapFactory.decodeResource(MainActivity.res, R.drawable.grassstairs);
+        brick = BitmapFactory.decodeResource(MainActivity.res, R.drawable.brick);
 
         text = new Paint();
         text.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -166,6 +169,9 @@ public class Map extends View {
                 }
                 else if (go.getClass() == GrassStair.class) {
                     canvas.drawBitmap(grassstairs, null, rc.getPos(), null);
+                }
+                else if (go.getClass() == Brick.class) {
+                    canvas.drawBitmap(brick, null, rc.getPos(), null);
                 }
                 if (go.getObjects().size() > 0) {
 

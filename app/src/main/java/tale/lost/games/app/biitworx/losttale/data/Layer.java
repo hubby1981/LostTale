@@ -64,6 +64,10 @@ public class Layer {
 
             result =  new GrassStair();
         }
+        else if (r==255&&g==100&&b==0) {
+
+            result =  new Brick();
+        }
         else if (r==255&&g==255&&b==255) {
 
             result =  null;
