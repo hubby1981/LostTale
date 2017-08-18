@@ -11,6 +11,7 @@ public class World {
     public static int dimens = 512;
     public static int worldX=0;
     public static int worldY=0;
+    public static Player player = new Player();
 
     public void generate() {
         layers.add(new Layer(dimens,0));

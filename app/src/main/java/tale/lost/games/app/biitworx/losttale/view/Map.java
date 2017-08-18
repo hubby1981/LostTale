@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -41,9 +42,13 @@ public class Map extends View {
     private Rect right;
     private Rect down;
 
-    private LinearGradient grad;
+    private Shader grad;
     private Paint back;
     private Paint text;
+    private Paint upper;
+    private Paint lower;
+    private Paint upper1;
+    private Paint lower1;
     private Bitmap stone;
     private Bitmap grass;
     private Bitmap sand;
@@ -52,8 +57,9 @@ public class Map extends View {
     private Bitmap water;
     private Bitmap grassstairs;
     private Bitmap brick;
+    private Bitmap head;
 
-    private int size = 80;
+    private int size = 70;
     private ArrayList<ArrayList<PositionRect>> layers = null;
 
     public Map(Context context, @Nullable AttributeSet attrs) {
@@ -61,6 +67,23 @@ public class Map extends View {
         rc = new Rect(0, 0, 0, 0);
         back = new Paint();
         back.setStyle(Paint.Style.FILL);
+        upper = new Paint();
+        upper.setStyle(Paint.Style.FILL);
+        upper.setColor(Color.argb(128,200,0,0));
+
+        lower = new Paint();
+        lower.setStyle(Paint.Style.FILL);
+        lower.setColor(Color.argb(128,100,0,0));
+
+
+        upper1 = new Paint();
+        upper1.setStyle(Paint.Style.FILL);
+        upper1.setColor(Color.argb(128,0,200,0));
+
+        lower1 = new Paint();
+        lower1.setStyle(Paint.Style.FILL);
+        lower1.setColor(Color.argb(128,0,0,200));
+
         stone = BitmapFactory.decodeResource(MainActivity.res, R.drawable.stone);
         sand = BitmapFactory.decodeResource(MainActivity.res, R.drawable.sand);
         grass = BitmapFactory.decodeResource(MainActivity.res, R.drawable.grass);
@@ -69,6 +92,7 @@ public class Map extends View {
         water = BitmapFactory.decodeResource(MainActivity.res, R.drawable.water);
         grassstairs = BitmapFactory.decodeResource(MainActivity.res, R.drawable.grassstairs);
         brick = BitmapFactory.decodeResource(MainActivity.res, R.drawable.brick);
+        head = BitmapFactory.decodeResource(MainActivity.res, R.drawable.headui);
 
         text = new Paint();
         text.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -89,12 +113,14 @@ public class Map extends View {
         right = new Rect(rc.right - rc.width() / 2, up.bottom, rc.right, down.top);
 
         if (grad == null)
-            grad = new LinearGradient(rc.left, rc.top, rc.left, rc.bottom, Color.argb(255, 180, 230, 255), Color.argb(255, 40, 115, 130), Shader.TileMode.CLAMP);
+            //grad = new LinearGradient(rc.left, rc.top, rc.left, rc.bottom, Color.argb(255, 170,40,40), Color.argb(255, 40, 10, 10), Shader.TileMode.CLAMP);
+            grad = new RadialGradient(rc.centerX(), rc.centerY(), rc.width(), Color.argb(255, 150, 220, 240), Color.argb(255, 30, 80, 100), Shader.TileMode.CLAMP);
         back.setShader(grad);
         canvas.drawRect(rc, back);
 
         if (layers == null) {
             layers = new ArrayList<>();
+            rc = new Rect(rc.left, rc.top - size * 2, rc.right, rc.bottom - size * 3);
             layers.add(drawLayer(new Rect(rc.left, rc.top + size * 3, rc.right, rc.bottom + size * 3)));
 
             layers.add(drawLayer(new Rect(rc.left, rc.top + size * 2, rc.right, rc.bottom + size * 2)));
@@ -113,7 +139,20 @@ public class Map extends View {
 
         }
 
+        canvas.drawBitmap(head, null, new Rect(up.left, up.top, up.right - up.width() / 2, up.top + up.height() / 2), null);
 
+
+        rc = new Rect(down.left,down.bottom-down.height(),down.left+down.width()/3,down.bottom);
+        up = new Rect(rc.left, rc.top, rc.right, rc.top + rc.height() / 3);
+        down = new Rect(rc.left, rc.bottom - rc.height() / 3, rc.right, rc.bottom);
+
+        left = new Rect(rc.left, up.bottom, rc.left + rc.width() / 2, down.top);
+        right = new Rect(rc.right - rc.width() / 2, up.bottom, rc.right, down.top);
+
+        canvas.drawRect(up,upper);
+        canvas.drawRect(down,lower);
+        canvas.drawRect(left,upper1);
+        canvas.drawRect(right,lower1);
     }
 
     @Override
@@ -134,13 +173,13 @@ public class Map extends View {
 
             if (right.contains((int) event.getX(), (int) event.getY())) {
                 MainActivity.world.worldX += 1;
-                if (MainActivity.world.worldX >=MainActivity.world.dimens)
+                if (MainActivity.world.worldX >= MainActivity.world.dimens)
                     MainActivity.world.worldX = MainActivity.world.dimens;
             }
 
             if (down.contains((int) event.getX(), (int) event.getY())) {
                 MainActivity.world.worldY += 1;
-                if (MainActivity.world.worldY >=MainActivity.world.dimens)
+                if (MainActivity.world.worldY >= MainActivity.world.dimens)
                     MainActivity.world.worldY = MainActivity.world.dimens;
             }
             this.invalidate();
@@ -166,11 +205,9 @@ public class Map extends View {
                     canvas.drawBitmap(sand, null, rc.getPos(), null);
                 } else if (go.getClass() == Water.class) {
                     canvas.drawBitmap(water, null, rc.getPos(), null);
-                }
-                else if (go.getClass() == GrassStair.class) {
+                } else if (go.getClass() == GrassStair.class) {
                     canvas.drawBitmap(grassstairs, null, rc.getPos(), null);
-                }
-                else if (go.getClass() == Brick.class) {
+                } else if (go.getClass() == Brick.class) {
                     canvas.drawBitmap(brick, null, rc.getPos(), null);
                 }
                 if (go.getObjects().size() > 0) {
@@ -187,6 +224,9 @@ public class Map extends View {
                             canvas.drawBitmap(willow, null, from, null);
                             from = new RectF(from.left - from.width() / 2, (from.top - from.height() / 2) - from.width() / 2, from.right + from.width() / 2, (from.bottom - from.height() / 2) + from.width() / 2);
                             canvas.drawBitmap(leavesgreen, null, from, null);
+                        }else if (go2.getClass() == Brick.class) {
+                            RectF from = new RectF(rc.getPos().left,rc.getPos().top-rc.getPos().height()/2,rc.getPos().right,rc.getPos().bottom-rc.getPos().height()/2);
+                            canvas.drawBitmap(brick, null, from, null);
                         }
                     }
                 }
@@ -200,48 +240,82 @@ public class Map extends View {
 
     private ArrayList<PositionRect> drawLayer(Rect rc) {
         ArrayList<PositionRect> result = new ArrayList<>();
+        //ebene -6
+        result.add(gr(rc, 0, -6, 0, 0));
+
+        //ebene -5
+        result.add(gr(rc, -1, -5, 0, 1));
+        result.add(gr(rc, 1, -5, 1, 0));
+
         //ebene -4
-        result.add(gr(rc, 0, -4, 0, 0));
+        result.add(gr(rc, -2, -4, 0, 2));
+        result.add(gr(rc, 0, -4, 1, 1));
+        result.add(gr(rc, 2, -4, 2, 0));
 
         //ebene -3
-        result.add(gr(rc, -1, -3, 0, 1));
-        result.add(gr(rc, 1, -3, 1, 0));
+        result.add(gr(rc, -3, -3, 0, 3));
+        result.add(gr(rc, -1, -3, 1, 2));
+        result.add(gr(rc, 1, -3, 2, 1));
+        result.add(gr(rc, 3, -3, 3, 0));
 
         //ebene -2
-        result.add(gr(rc, -2, -2, 0, 2));
-        result.add(gr(rc, 0, -2, 1, 1));
-        result.add(gr(rc, 2, -2, 2, 0));
+        result.add(gr(rc, -4, -2, 0, 4));
+        result.add(gr(rc, -2, -2, 1, 3));
+        result.add(gr(rc, 0, -2, 2, 2));
+        result.add(gr(rc, 2, -2, 3, 1));
+        result.add(gr(rc, 4, -2, 4, 0));
 
         //ebene -1
-        result.add(gr(rc, -3, -1, 0, 3));
-        result.add(gr(rc, -1, -1, 1, 2));
-        result.add(gr(rc, 1, -1, 2, 1));
-        result.add(gr(rc, 3, -1, 3, 0));
+        result.add(gr(rc, -5, -1, 0, 5));
+        result.add(gr(rc, -3, -1, 1, 4));
+        result.add(gr(rc, -1, -1, 2, 3));
+        result.add(gr(rc, 1, -1, 3, 2));
+        result.add(gr(rc, 3, -1, 4, 1));
+        result.add(gr(rc, 5, -1, 5, 0));
 
         //ebene 0 center
-        result.add(gr(rc, -4, 0, 0, 4));
-        result.add(gr(rc, -2, 0, 1, 3));
-        result.add(gr(rc, 0, 0, 2, 2));
-        result.add(gr(rc, 2, 0, 3, 1));
-        result.add(gr(rc, 4, 0, 4, 0));
+        result.add(gr(rc, -6, 0, 0, 6));
+        result.add(gr(rc, -4, 0, 1, 5));
+        result.add(gr(rc, -2, 0, 2, 4));
+        result.add(gr(rc, 0, 0, 3, 3));
+        result.add(gr(rc, 2, 0, 4, 2));
+        result.add(gr(rc, 4, 0, 5, 1));
+        result.add(gr(rc, 6, 0, 6, 0));
+
 
         //ebene 1
-        result.add(gr(rc, -3, 1, 1, 4));
-        result.add(gr(rc, -1, 1, 2, 3));
-        result.add(gr(rc, 1, 1, 3, 2));
-        result.add(gr(rc, 3, 1, 4, 1));
+        result.add(gr(rc, -5, 1, 1, 6));
+        result.add(gr(rc, -3, 1, 2, 5));
+        result.add(gr(rc, -1, 1, 3, 4));
+        result.add(gr(rc, 1, 1, 4, 3));
+        result.add(gr(rc, 3, 1, 5, 2));
+        result.add(gr(rc, 5, 1, 6, 1));
 
         //ebene 2
-        result.add(gr(rc, -2, 2, 2, 4));
-        result.add(gr(rc, 0, 2, 3, 3));
-        result.add(gr(rc, 2, 2, 4, 2));
+        result.add(gr(rc, -4, 2, 2, 6));
+        result.add(gr(rc, -2, 2, 3, 5));
+        result.add(gr(rc, 0, 2, 4, 4));
+        result.add(gr(rc, 2, 2, 5, 3));
+        result.add(gr(rc, 4, 2, 6, 2));
 
         //ebene 3
-        result.add(gr(rc, -1, 3, 3, 4));
-        result.add(gr(rc, 1, 3, 4, 3));
+        result.add(gr(rc, -3, 3, 3, 6));
+        result.add(gr(rc, -1, 3, 4, 5));
+        result.add(gr(rc, 1, 3, 5, 4));
+        result.add(gr(rc, 3, 3, 6, 3));
 
         //ebene 4
-        result.add(gr(rc, 0, 4, 4, 4));
+        result.add(gr(rc, -2, 4, 4, 6));
+        result.add(gr(rc, 0, 4, 5, 5));
+        result.add(gr(rc, 2, 4, 6, 4));
+
+        //ebene 5
+        result.add(gr(rc, -1, 5, 5, 6));
+        result.add(gr(rc, 1, 5, 6, 5));
+
+        //ebene 6
+        result.add(gr(rc, 0, 6, 6, 6));
+
         return result;
     }
 

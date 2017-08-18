@@ -23,9 +23,9 @@ public class Layer {
 
             for (int x = 0; x < dimens; x++) {
 
-                GameObject o = generate(x,y);
+                GameObject o =null;/* generate(x,y);
                 if(o!=null)
-                 o.name = x + "." + y;
+                    o.name = x + "." + y;*/
                 obj.add(o);
             }
             objects.add(obj);
@@ -66,7 +66,8 @@ public class Layer {
         }
         else if (r==255&&g==100&&b==0) {
 
-            result =  new Brick();
+            result =  new Grass();
+            result.getObjects().add(new Brick());
         }
         else if (r==255&&g==255&&b==255) {
 
@@ -77,6 +78,13 @@ public class Layer {
     }
 
     public GameObject get(int x, int y) {
-        return objects.get(y).get(x);
+
+
+        GameObject o =  objects.get(y).get(x);
+        if (o==null){
+            o = generate(x,y);
+            objects.get(y).set(x,o);
+        }
+        return o;
     }
 }
